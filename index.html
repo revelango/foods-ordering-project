@@ -1,0 +1,545 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Canteen | Interactive Food Ordering Demo</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+        }
+
+        header {
+            background: #ff5722;
+            color: white;
+            padding: 20px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        header h1 {
+            font-size: 30px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .live-clock {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.35);
+            color: white;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #8cff9b;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #8cff9b;
+        }
+        .cart-info {
+            background: white;
+            color: #ff5722;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 55px 15px;
+            background: #fff0e8;
+        }
+
+        .hero h2 {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            margin-bottom: 20px;
+        }
+
+        .hero a {
+            display: inline-block;
+            background: #ff5722;
+            color: white;
+            padding: 12px 22px;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .menu {
+            padding: 40px 7%;
+        }
+
+        .menu h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 30px;
+        }
+
+        .food-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .food-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            text-align: center;
+            box-shadow: 0 3px 12px #ddd;
+            padding-bottom: 20px;
+        }
+
+        .food-card img {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+        }
+
+        .food-card h3 {
+            margin: 15px 0 10px;
+        }
+
+        .price {
+            color: #ff5722;
+            font-size: 21px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: #ff5722;
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #d84315;
+        }
+
+        .cart-section {
+            background: white;
+            margin: 20px 7% 40px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #ddd;
+        }
+
+        .cart-section h2 {
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .cart-item button {
+            padding: 6px 10px;
+        }
+
+        .remove-btn {
+            background: #555;
+        }
+
+        .cart-total {
+            margin-top: 20px;
+            font-size: 23px;
+            font-weight: bold;
+        }
+
+        .checkout-btn {
+            margin-top: 15px;
+        }
+
+        footer {
+            background: #222;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 500px) {
+            header {
+                justify-content: center;
+                text-align: center;
+            }
+            nav {
+                width: 100%;
+            }
+            .live-clock, .cart-info {
+                margin: 2px;
+            }
+
+            .hero h2 {
+                font-size: 28px;
+            }
+
+            .cart-item {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>college canteen.</h1>
+
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#menu">Menu</a>
+        <a href="#cart">Cart</a>
+    </nav>
+
+    <div class="live-clock" aria-live="polite">
+        <span class="live-dot"></span>
+        <span>Live time: <span id="live-time">--:--:--</span></span>
+    </div>
+    <div class="cart-info">
+        🛒 Cart: <span id="cart-count">0</span>
+    </div>
+</header>
+
+<section class="hero" id="home">
+    <h2>Delicious Food, Delivered Fresh!</h2>
+    <p>Order your favourite food at the best price.</p>
+    <a href="#menu">Explore Menu &amp; Order</a>
+    <p style="margin-top:16px;font-size:13px;color:#777;">Interactive demo • Add items to cart • View your total</p>
+</section>
+
+<section class="menu" id="menu">
+    <h2>Our Food Menu</h2>
+
+    <div class="food-container">
+
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58bd?auto=format&fit=crop&w=900&q=85" alt="Cheese Burger" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Cheese Burger</h3>
+            <p class="price">₹149</p>
+            <button onclick="addToCart('Cheese Burger',149)">
+                Add to Cart
+            </button>
+        </div>
+
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=85" alt="Cheese Pizza" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Cheese Pizza</h3>
+            <p class="price">₹249</p>
+            <button onclick="addToCart('Cheese Pizza',249)">
+                Add to Cart
+            </button>
+        </div>
+
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=900&q=85" alt="Fried Rice" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Fried Rice</h3>
+            <p class="price">₹129</p>
+            <button onclick="addToCart('Fried Rice',129)">
+                Add to Cart
+            </button>
+        </div>
+
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1532634896-26909d0d4b4b?auto=format&fit=crop&w=900&q=85" alt="Grilled Chicken" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Grilled Chicken</h3>
+            <p class="price">₹299</p>
+            <button onclick="addToCart('Grilled Chicken',299)">
+                Add to Cart
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=900&q=85" alt="Rose Milk" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Rose Milk</h3>
+            <p class="price">₹100</p>
+            <button onclick="addToCart('Rose Milk',100)">
+                Add to Cart
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1563379091339-03246963d96c?auto=format&fit=crop&w=900&q=85" alt="Chicken Biryani" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Chicken Biryani</h3>
+            <p class="price">₹215</p>
+            <button onclick="addToCart('Chicken Biryani',215)">
+                Add to cart
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=900&q=85" alt="Dosa" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Dosa</h3>
+            <p class="price">₹60</p>
+            <button onclick="addToCart('Dosa',60)">
+                Add to cart
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=900&q=85" alt="Idli" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Idli</h3>
+            <p>5 pieces</p>
+            <p class="price">₹70</p>
+            <button onclick="addToCart('Idli',70)">
+                Add to Cart
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1563379091339-03246963d96c?auto=format&fit=crop&w=900&q=85" alt="Mutton Biryani" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Mutton Biryani</h3>
+            <p class="price">₹500</p>
+            <button onclick="addToCart('Mutton Biryani',500)">
+                Add to Cart
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=900&q=85" alt="Veg noodles" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Veg noodles</h3>
+            <p class="price">₹125</p>
+            <button onclick="addToCart('Veg noodles',125)">
+                Add to card
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=900&q=85" alt="Falooda" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Falooda</h3>
+            <p class="price">₹110</p>
+            <button onclick="addToCart('Falooda',110)">
+                Add to Cart
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=900&q=85" alt="Samosa" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Samosa </h3>
+            <p>2 pieces</p>
+            <p class="price">₹35</p>
+            <button onclick="addToCart('Samosa',35)">
+                Add to Cart
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1544787219-7f47a6f2b2f8?auto=format&fit=crop&w=900&q=85" alt="Tea" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Tea</h3>
+            <p class="price">₹25</p>
+            <button onclick="addToCart('Tea',25)">
+                Add to Cart
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=900&q=85" alt="Chicken 65" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Chicken 65</h3>
+            <p>100g</p>
+            <p class="price">₹75</p>
+            <button onclick="addToCart('Chicken 65',75)">
+                Add to Cart
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?auto=format&fit=crop&w=900&q=85" alt="Paneer Tikka" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Paneer Tikka</h3>
+            <p class="price">₹155</p>
+            <button onclick="addToCart('Panner Tikka',155)">
+                Add to Cart
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=900&q=85" alt="Ghee Rice" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Ghee Rice</h3>
+            <p class="price">₹250</p>
+            <button onclick="addToCart('Ghee Rice',250)">
+                Add to Cart
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1551024506-0eca534d6b1a?auto=format&fit=crop&w=900&q=85" alt="Rasgulla" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Rasgulla</h3>
+            <p class="price">₹100</p>
+            <button onclick="addToCart('Rasgulla',100)">
+                Add to Cart
+            </button>
+        </div>
+        <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=900&q=85" alt="Egg Rice" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>Egg Rice</h3>
+            <p class="price">₹100</p>
+            <button onclick="addToCart('Egg Rice',100)">
+                Add to Cart
+            </button>
+        </div>
+         <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=900&q=85" alt="vadai" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>vadai</h3>
+            <p>2 pieces</p>
+            <p class="price">₹24</p>
+            <button onclick="addToCart('vadai',24)">
+                Add to Cart
+            </button>
+         </div>
+         <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85" alt="curd rice" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/800x500/fff0e8/ff5722?text=Food+Image';">
+            <h3>curd rice</h3>
+            <p class="price">₹50</p>
+            <button onclick="addToCart('curd rice',50)">
+                Add to Cart
+            </button>
+         </div>
+
+    </div>
+</section>
+
+<section class="cart-section" id="cart">
+    <h2>🛒 Your Shopping Cart</h2>
+
+    <div id="cart-items">
+        Your cart is empty.
+    </div>
+
+    <p class="cart-total">
+        Total: ₹<span id="total">0</span>
+    </p>
+
+    <button class="checkout-btn" onclick="checkout()">
+        Checkout
+    </button>
+</section>
+
+<footer>
+    <p>© 2026 Foodie Restaurant | Fresh Food, Happy Life!</p>
+</footer>
+
+<script>
+    // Live clock uses the viewer's local device time.
+    function updateLiveTime() {
+        const timeElement = document.getElementById("live-time");
+        if (timeElement) {
+            timeElement.textContent = new Date().toLocaleTimeString();
+        }
+    }
+    updateLiveTime();
+    setInterval(updateLiveTime, 1000);
+
+    let cart = [];
+
+    function addToCart(name, price) {
+        let item = cart.find(food => food.name === name);
+
+        if (item) {
+            item.quantity++;
+        } else {
+            cart.push({
+                name: name,
+                price: price,
+                quantity: 1
+            });
+        }
+
+        displayCart();
+    }
+
+    function changeQuantity(name, amount) {
+        let item = cart.find(food => food.name === name);
+
+        if (item) {
+            item.quantity += amount;
+
+            if (item.quantity <= 0) {
+                cart = cart.filter(food => food.name !== name);
+            }
+        }
+
+        displayCart();
+    }
+
+    function removeItem(name) {
+        cart = cart.filter(food => food.name !== name);
+        displayCart();
+    }
+
+    function displayCart() {
+        let cartItems = document.getElementById("cart-items");
+        let total = 0;
+        let count = 0;
+
+        cartItems.innerHTML = "";
+
+        if (cart.length === 0) {
+            cartItems.textContent = "Your cart is empty.";
+        }
+
+        cart.forEach(food => {
+            let itemTotal = food.price * food.quantity;
+
+            total += itemTotal;
+            count += food.quantity;
+
+            cartItems.innerHTML += `
+                <div class="cart-item">
+                    <span>
+                        <strong>${food.name}</strong><br>
+                        ₹${food.price} × ${food.quantity}
+                        = ₹${itemTotal}
+                    </span>
+
+                    <div>
+                        <button onclick="changeQuantity('${food.name}', -1)">−</button>
+                        <button onclick="changeQuantity('${food.name}', 1)">+</button>
+                        <button class="remove-btn"
+                            onclick="removeItem('${food.name}')">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        document.getElementById("total").textContent = total;
+        document.getElementById("cart-count").textContent = count;
+    }
+
+    function checkout() {
+        if (cart.length === 0) {
+            alert("Your cart is empty! Please add food first.");
+            return;
+        }
+
+        let total = cart.reduce(
+            (sum, food) => sum + food.price * food.quantity, 0
+        );
+
+        alert("Order Summary\nTotal Amount: ₹" + total +
+              "\nThis is a demo checkout.");
+    }
+</script>
+
+</body>
+</html>
